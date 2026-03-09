@@ -1,0 +1,306 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "kissfft/tools/psdpng-float"
+		}
+	],
+	"backtrace" : 2,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"add_kissfft_executable",
+			"install",
+			"target_link_libraries",
+			"set_property",
+			"_pkg_create_imp_target",
+			"_pkg_recalculate",
+			"pkg_check_modules",
+			"add_compile_options"
+		],
+		"files" : 
+		[
+			"kissfft/CMakeLists.txt",
+			"kissfft/tools/CMakeLists.txt",
+			"/usr/share/cmake/Modules/FindPkgConfig.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 19,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 252,
+				"parent" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 21,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 253,
+				"parent" : 1
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 260,
+				"parent" : 1
+			},
+			{
+				"command" : 7,
+				"file" : 1,
+				"line" : 18,
+				"parent" : 0
+			},
+			{
+				"command" : 6,
+				"file" : 2,
+				"line" : 1174,
+				"parent" : 6
+			},
+			{
+				"command" : 5,
+				"file" : 2,
+				"line" : 813,
+				"parent" : 7
+			},
+			{
+				"command" : 4,
+				"file" : 2,
+				"line" : 794,
+				"parent" : 8
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 20,
+				"parent" : 0
+			},
+			{
+				"file" : 0
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 99,
+				"parent" : 11
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"compileDependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		},
+		{
+			"backtrace" : 10,
+			"id" : "PkgConfig::libpng::@f73cc8b188bc1acb1a45"
+		}
+	],
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-ffast-math"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-fomit-frame-pointer"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-W"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wall"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wcast-align"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wcast-qual"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wshadow"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wwrite-strings"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wstrict-prototypes"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wmissing-prototypes"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wnested-externs"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-Wbad-function-cast"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 4,
+					"define" : "KISS_FFT_SHARED"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "kiss_fft_scalar=float"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 4,
+					"path" : "/home/max/code/dialdown/kissfft"
+				},
+				{
+					"backtrace" : 10,
+					"isSystem" : true,
+					"path" : "/usr/include/libpng16"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		}
+	],
+	"id" : "psdpng::@f73cc8b188bc1acb1a45",
+	"install" : 
+	{
+		"destinations" : 
+		[
+			{
+				"backtrace" : 3,
+				"path" : "bin"
+			}
+		],
+		"prefix" : 
+		{
+			"path" : "/usr/local"
+		}
+	},
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/max/code/dialdown/build/kissfft:",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "../libkissfft-float.so.131.1.0",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "-lm",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 9,
+				"fragment" : "/usr/lib/libpng16.so",
+				"role" : "libraries"
+			}
+		],
+		"language" : "C"
+	},
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "m"
+		},
+		{
+			"backtrace" : 10,
+			"id" : "PkgConfig::libpng::@f73cc8b188bc1acb1a45"
+		}
+	],
+	"name" : "psdpng",
+	"nameOnDisk" : "psdpng-float",
+	"paths" : 
+	{
+		"build" : "kissfft/tools",
+		"source" : "kissfft/tools"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "kissfft/tools/psdpng.c",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

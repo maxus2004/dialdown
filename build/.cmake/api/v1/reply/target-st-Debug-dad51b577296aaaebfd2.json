@@ -1,0 +1,250 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "kissfft/test/st-float"
+		}
+	],
+	"backtrace" : 3,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"add_kissfft_executable",
+			"add_kissfft_test_executable",
+			"target_link_libraries",
+			"add_compile_options",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"kissfft/CMakeLists.txt",
+			"kissfft/test/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 36,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 2,
+				"parent" : 1
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 252,
+				"parent" : 2
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 253,
+				"parent" : 2
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 260,
+				"parent" : 2
+			},
+			{
+				"file" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 99,
+				"parent" : 6
+			},
+			{
+				"command" : 5,
+				"file" : 1,
+				"line" : 3,
+				"parent" : 1
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"compileDependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		}
+	],
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-ffast-math"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-fomit-frame-pointer"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-W"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wall"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wcast-align"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wcast-qual"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wshadow"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wwrite-strings"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wstrict-prototypes"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wmissing-prototypes"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wnested-externs"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wbad-function-cast"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 4,
+					"define" : "KISS_FFT_SHARED"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "kiss_fft_scalar=float"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 8,
+					"path" : "/home/max/code/dialdown/kissfft/test/.."
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/max/code/dialdown/kissfft"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		}
+	],
+	"id" : "st::@0f3b765bfdaea9655711",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/max/code/dialdown/build/kissfft",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "../libkissfft-float.so.131.1.0",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "-lm",
+				"role" : "libraries"
+			}
+		],
+		"language" : "C"
+	},
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "m"
+		}
+	],
+	"name" : "st",
+	"nameOnDisk" : "st-float",
+	"paths" : 
+	{
+		"build" : "kissfft/test",
+		"source" : "kissfft/test"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "kissfft/test/twotonetest.c",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

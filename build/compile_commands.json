@@ -1,0 +1,122 @@
+[
+{
+  "directory": "/home/max/code/dialdown/build",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -o CMakeFiles/dialdown.dir/main.c.o -c /home/max/code/dialdown/main.c",
+  "file": "/home/max/code/dialdown/main.c",
+  "output": "CMakeFiles/dialdown.dir/main.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft",
+  "command": "/usr/bin/cc -DKISS_FFT_BUILD -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -fPIC -fvisibility=hidden -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/kissfft.dir/kiss_fft.c.o -c /home/max/code/dialdown/kissfft/kiss_fft.c",
+  "file": "/home/max/code/dialdown/kissfft/kiss_fft.c",
+  "output": "kissfft/CMakeFiles/kissfft.dir/kiss_fft.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft",
+  "command": "/usr/bin/cc -DKISS_FFT_BUILD -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -fPIC -fvisibility=hidden -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/kissfft.dir/kfc.c.o -c /home/max/code/dialdown/kissfft/kfc.c",
+  "file": "/home/max/code/dialdown/kissfft/kfc.c",
+  "output": "kissfft/CMakeFiles/kissfft.dir/kfc.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft",
+  "command": "/usr/bin/cc -DKISS_FFT_BUILD -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -fPIC -fvisibility=hidden -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/kissfft.dir/kiss_fftnd.c.o -c /home/max/code/dialdown/kissfft/kiss_fftnd.c",
+  "file": "/home/max/code/dialdown/kissfft/kiss_fftnd.c",
+  "output": "kissfft/CMakeFiles/kissfft.dir/kiss_fftnd.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft",
+  "command": "/usr/bin/cc -DKISS_FFT_BUILD -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -fPIC -fvisibility=hidden -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/kissfft.dir/kiss_fftndr.c.o -c /home/max/code/dialdown/kissfft/kiss_fftndr.c",
+  "file": "/home/max/code/dialdown/kissfft/kiss_fftndr.c",
+  "output": "kissfft/CMakeFiles/kissfft.dir/kiss_fftndr.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft",
+  "command": "/usr/bin/cc -DKISS_FFT_BUILD -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -fPIC -fvisibility=hidden -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/kissfft.dir/kiss_fftr.c.o -c /home/max/code/dialdown/kissfft/kiss_fftr.c",
+  "file": "/home/max/code/dialdown/kissfft/kiss_fftr.c",
+  "output": "kissfft/CMakeFiles/kissfft.dir/kiss_fftr.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/tools",
+  "command": "/usr/bin/cc -DFAST_FILT_UTIL -DKISS_FFT_SHARED -DREAL_FASTFIR -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/fastconvr.dir/kiss_fastfir.c.o -c /home/max/code/dialdown/kissfft/tools/kiss_fastfir.c",
+  "file": "/home/max/code/dialdown/kissfft/tools/kiss_fastfir.c",
+  "output": "kissfft/tools/CMakeFiles/fastconvr.dir/kiss_fastfir.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/tools",
+  "command": "/usr/bin/cc -DFAST_FILT_UTIL -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/fastconv.dir/kiss_fastfir.c.o -c /home/max/code/dialdown/kissfft/tools/kiss_fastfir.c",
+  "file": "/home/max/code/dialdown/kissfft/tools/kiss_fastfir.c",
+  "output": "kissfft/tools/CMakeFiles/fastconv.dir/kiss_fastfir.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/tools",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/fft.dir/fftutil.c.o -c /home/max/code/dialdown/kissfft/tools/fftutil.c",
+  "file": "/home/max/code/dialdown/kissfft/tools/fftutil.c",
+  "output": "kissfft/tools/CMakeFiles/fft.dir/fftutil.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/tools",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft -isystem /usr/include/libpng16 -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/psdpng.dir/psdpng.c.o -c /home/max/code/dialdown/kissfft/tools/psdpng.c",
+  "file": "/home/max/code/dialdown/kissfft/tools/psdpng.c",
+  "output": "kissfft/tools/CMakeFiles/psdpng.dir/psdpng.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/fastfilt.dir/__/tools/fftutil.c.o -c /home/max/code/dialdown/kissfft/tools/fftutil.c",
+  "file": "/home/max/code/dialdown/kissfft/tools/fftutil.c",
+  "output": "kissfft/test/CMakeFiles/fastfilt.dir/__/tools/fftutil.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/bm_kiss.dir/benchkiss.c.o -c /home/max/code/dialdown/kissfft/test/benchkiss.c",
+  "file": "/home/max/code/dialdown/kissfft/test/benchkiss.c",
+  "output": "kissfft/test/CMakeFiles/bm_kiss.dir/benchkiss.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/bm_kiss.dir/pstats.c.o -c /home/max/code/dialdown/kissfft/test/pstats.c",
+  "file": "/home/max/code/dialdown/kissfft/test/pstats.c",
+  "output": "kissfft/test/CMakeFiles/bm_kiss.dir/pstats.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/bm_fftw.dir/benchfftw.c.o -c /home/max/code/dialdown/kissfft/test/benchfftw.c",
+  "file": "/home/max/code/dialdown/kissfft/test/benchfftw.c",
+  "output": "kissfft/test/CMakeFiles/bm_fftw.dir/benchfftw.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/bm_fftw.dir/pstats.c.o -c /home/max/code/dialdown/kissfft/test/pstats.c",
+  "file": "/home/max/code/dialdown/kissfft/test/pstats.c",
+  "output": "kissfft/test/CMakeFiles/bm_fftw.dir/pstats.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/st.dir/twotonetest.c.o -c /home/max/code/dialdown/kissfft/test/twotonetest.c",
+  "file": "/home/max/code/dialdown/kissfft/test/twotonetest.c",
+  "output": "kissfft/test/CMakeFiles/st.dir/twotonetest.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKFC_TEST -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/tkfc.dir/twotonetest.c.o -c /home/max/code/dialdown/kissfft/test/twotonetest.c",
+  "file": "/home/max/code/dialdown/kissfft/test/twotonetest.c",
+  "output": "kissfft/test/CMakeFiles/tkfc.dir/twotonetest.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/ffr.dir/twotonetest.c.o -c /home/max/code/dialdown/kissfft/test/twotonetest.c",
+  "file": "/home/max/code/dialdown/kissfft/test/twotonetest.c",
+  "output": "kissfft/test/CMakeFiles/ffr.dir/twotonetest.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/cc -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wbad-function-cast -o CMakeFiles/tr.dir/test_real.c.o -c /home/max/code/dialdown/kissfft/test/test_real.c",
+  "file": "/home/max/code/dialdown/kissfft/test/test_real.c",
+  "output": "kissfft/test/CMakeFiles/tr.dir/test_real.c.o"
+},
+{
+  "directory": "/home/max/code/dialdown/build/kissfft/test",
+  "command": "/usr/bin/c++ -DKISS_FFT_SHARED -Dkiss_fft_scalar=float -I/home/max/code/dialdown/kissfft/test/.. -I/home/max/code/dialdown/kissfft -g -ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -o CMakeFiles/testcpp.dir/testcpp.cc.o -c /home/max/code/dialdown/kissfft/test/testcpp.cc",
+  "file": "/home/max/code/dialdown/kissfft/test/testcpp.cc",
+  "output": "kissfft/test/CMakeFiles/testcpp.dir/testcpp.cc.o"
+}
+]

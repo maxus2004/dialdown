@@ -1,0 +1,1 @@
+/usr/bin/cc -g -Wl,--dependency-file=CMakeFiles/tkfc.dir/link.d CMakeFiles/tkfc.dir/twotonetest.c.o -o tkfc-float  -Wl,-rpath,/home/max/code/dialdown/build/kissfft ../libkissfft-float.so.131.1.0 -lm

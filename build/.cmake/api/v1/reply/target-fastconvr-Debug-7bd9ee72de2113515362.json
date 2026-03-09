@@ -1,0 +1,268 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "kissfft/tools/fastconvr-float"
+		}
+	],
+	"backtrace" : 2,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"add_kissfft_executable",
+			"install",
+			"target_link_libraries",
+			"add_compile_options",
+			"target_compile_definitions"
+		],
+		"files" : 
+		[
+			"kissfft/CMakeLists.txt",
+			"kissfft/tools/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 1,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 252,
+				"parent" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 9,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 253,
+				"parent" : 1
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 260,
+				"parent" : 1
+			},
+			{
+				"file" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 99,
+				"parent" : 6
+			},
+			{
+				"command" : 5,
+				"file" : 1,
+				"line" : 2,
+				"parent" : 0
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"compileDependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		}
+	],
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-ffast-math"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-fomit-frame-pointer"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-W"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wall"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wcast-align"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wcast-qual"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wshadow"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wwrite-strings"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wstrict-prototypes"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wmissing-prototypes"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wnested-externs"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wbad-function-cast"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 8,
+					"define" : "FAST_FILT_UTIL"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "KISS_FFT_SHARED"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "REAL_FASTFIR"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "kiss_fft_scalar=float"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 4,
+					"path" : "/home/max/code/dialdown/kissfft"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		}
+	],
+	"id" : "fastconvr::@f73cc8b188bc1acb1a45",
+	"install" : 
+	{
+		"destinations" : 
+		[
+			{
+				"backtrace" : 3,
+				"path" : "bin"
+			}
+		],
+		"prefix" : 
+		{
+			"path" : "/usr/local"
+		}
+	},
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/max/code/dialdown/build/kissfft:",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "../libkissfft-float.so.131.1.0",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "-lm",
+				"role" : "libraries"
+			}
+		],
+		"language" : "C"
+	},
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "kissfft::@4ab4a283321f29e5cdd3"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "m"
+		}
+	],
+	"name" : "fastconvr",
+	"nameOnDisk" : "fastconvr-float",
+	"paths" : 
+	{
+		"build" : "kissfft/tools",
+		"source" : "kissfft/tools"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "kissfft/tools/kiss_fastfir.c",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

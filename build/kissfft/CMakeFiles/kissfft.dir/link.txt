@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC -g -shared -Wl,--dependency-file=CMakeFiles/kissfft.dir/link.d -Wl,-soname,libkissfft-float.so.131 -o libkissfft-float.so.131.1.0 CMakeFiles/kissfft.dir/kiss_fft.c.o CMakeFiles/kissfft.dir/kfc.c.o CMakeFiles/kissfft.dir/kiss_fftnd.c.o CMakeFiles/kissfft.dir/kiss_fftndr.c.o CMakeFiles/kissfft.dir/kiss_fftr.c.o  -lm

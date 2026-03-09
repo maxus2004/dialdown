@@ -1,0 +1,1 @@
+/usr/bin/cc -g -Wl,--dependency-file=CMakeFiles/dialdown.dir/link.d CMakeFiles/dialdown.dir/main.c.o -o dialdown  -Wl,-rpath,/home/max/code/dialdown/build/kissfft -lasound -lm kissfft/libkissfft-float.so.131.1.0

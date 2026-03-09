@@ -1,0 +1,1 @@
+/usr/bin/cc -g -Wl,--dependency-file=CMakeFiles/fastconvr.dir/link.d CMakeFiles/fastconvr.dir/kiss_fastfir.c.o -o fastconvr-float  -Wl,-rpath,/home/max/code/dialdown/build/kissfft: ../libkissfft-float.so.131.1.0 -lm

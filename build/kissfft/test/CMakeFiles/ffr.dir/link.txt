@@ -1,1 +1,0 @@
-/usr/bin/cc -g -Wl,--dependency-file=CMakeFiles/ffr.dir/link.d CMakeFiles/ffr.dir/twotonetest.c.o -o ffr-float  -Wl,-rpath,/home/max/code/dialdown/build/kissfft ../libkissfft-float.so.131.1.0 -lm

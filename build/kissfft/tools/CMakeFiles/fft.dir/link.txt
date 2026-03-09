@@ -1,1 +1,0 @@
-/usr/bin/cc -g -Wl,--dependency-file=CMakeFiles/fft.dir/link.d CMakeFiles/fft.dir/fftutil.c.o -o fft-float  -Wl,-rpath,/home/max/code/dialdown/build/kissfft: ../libkissfft-float.so.131.1.0 -lm

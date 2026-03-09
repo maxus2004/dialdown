@@ -1,1 +1,0 @@
-/usr/bin/cc -g -Wl,--dependency-file=CMakeFiles/tr.dir/link.d CMakeFiles/tr.dir/test_real.c.o -o tr-float  -Wl,-rpath,/home/max/code/dialdown/build/kissfft ../libkissfft-float.so.131.1.0 -lm

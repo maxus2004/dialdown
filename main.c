@@ -13,15 +13,26 @@
 #include "stb_ds.h"
 #include <pthread.h>
 
-#define APLITUDE 5000
+#define AMPLITUDE 20000
 #define SAMPLE_RATE 48000
-#define FFT_SIZE 4
-#define NUM_TONES 2
-#define ZERO_FREQ 2000.0
-#define ONE_FREQ 24000.0
-#define TONES_PER_SECOND 12000
-#define SAMPLES_PER_TONE (SAMPLE_RATE/TONES_PER_SECOND)
+#define FFT_SIZE 24
+#define FIRST_SUBCARRIER 1
+#define SUBCARRIER_COUNT 8
+#define SUBCARRIER_SPACING 1
+#define SUBCARRIER_SYMBOLS_COUNT 256
+#define CYCLIC_PREFIX 2
+#define FRAME_SPACING 2
+#define CORRELATION_THRESHOLD 0.01
+#define CORRELATION_FALLOFF_THRESHOLD 0.00001
+
+#define BITS_PER_SYMBOL (SUBCARRIER_COUNT*(int)log2(SUBCARRIER_SYMBOLS_COUNT))
 #define PI 3.14159265359
+
+kiss_fft_cpx subcarrier_symbols[SUBCARRIER_SYMBOLS_COUNT];
+
+kiss_fft_cpx default_symbol = {0.5,0};
+kiss_fft_cpx preamble_symbol = {1,0};
+
 
 pthread_mutex_t serial_send_queue_mutex;
 pthread_mutex_t audio_send_queue_mutex;
@@ -31,14 +42,6 @@ uint8_t *audio_send_queue = NULL;
 
 int serial_fd;
 
-typedef struct {
-    int bin_index;           // Pre-calculated FFT bin
-    float frequency;         // Actual frequency
-    float magnitude;         // Current magnitude
-} tone_t;
-
-tone_t tones[NUM_TONES];
-
 void sleep_ms(int ms){
     struct timespec req;
     req.tv_sec = 0;
@@ -46,50 +49,23 @@ void sleep_ms(int ms){
     nanosleep(&req, NULL); 
 }
 
-void init_tones() {
-    float freq_step = (ONE_FREQ - ZERO_FREQ) / (NUM_TONES - 1);
-    
-    for (int i = 0; i < NUM_TONES; i++) {
-        tones[i].frequency = ZERO_FREQ + i * freq_step;
-        tones[i].bin_index = (int)(tones[i].frequency * FFT_SIZE / SAMPLE_RATE + 0.5);
-        tones[i].magnitude = 0;
-        
-        // printf("Tone %2d: %6.1f Hz -> bin %3d\n", 
-        //        i, tones[i].frequency, tones[i].bin_index);
+float correlation(int16_t *a, int16_t *b, int len){
+    float sum = 0;
+    for(int i = 0;i<len;i++){
+        sum += a[i]*b[i]*0.00003*0.00003;
     }
-}
-
-int detect_tone_optimized(kiss_fft_cpx *fft_output) {
-    int best_tone = -1;
-    float max_mag = 0;
-    
-    // Only check our pre-calculated bins
-    for (int t = 0; t < NUM_TONES; t++) {
-        int bin = tones[t].bin_index;
-        float mag = sqrt(fft_output[bin].r * fft_output[bin].r + 
-                         fft_output[bin].i * fft_output[bin].i);
-        tones[t].magnitude = mag;
-        
-        if (mag > max_mag) {
-            max_mag = mag;
-            best_tone = t;
-        }
-    }
-    
-    return best_tone;
+    return sum/FFT_SIZE;
 }
 
 void* audio_input_loop(void* args){
     snd_pcm_t *input_handle;
     snd_pcm_hw_params_t *input_params;
-    short *input_buffer;
-    float *fft_input;
-    kiss_fft_cpx *fft_output;
-    kiss_fftr_cfg fft_cfg;
+    short garbage[CYCLIC_PREFIX/2];
+    short input_buffer[FFT_SIZE];
+    float fft_input[FFT_SIZE];
+    kiss_fft_cpx fft_output[FFT_SIZE];
+    kiss_fftr_cfg fft_cfg = kiss_fftr_alloc(FFT_SIZE, false, NULL, NULL);
     int err;
-    
-    // initialize tones array
-    init_tones();
 
     // configure input device
     err = snd_pcm_open(&input_handle, INPUT_DEVICE, SND_PCM_STREAM_CAPTURE, 0);
@@ -114,48 +90,130 @@ void* audio_input_loop(void* args){
         fprintf(stderr, "Unable to set input device parameters: %s\n", snd_strerror(err));
     }
         
-    // Allocate buffers
-    input_buffer = malloc(FFT_SIZE * sizeof(short));
-    fft_input = malloc(FFT_SIZE * sizeof(float));
-    fft_output = malloc(FFT_SIZE * sizeof(kiss_fft_cpx));
-    fft_cfg = kiss_fftr_alloc(FFT_SIZE, 0, NULL, NULL);
-    
-
-    bool recodring_byte = false;
-    int current_bit = 0;
-    uint8_t received_byte = 0;
-
     printf("audio input loop started\n");
 
     snd_pcm_prepare(input_handle);
     
     while (true) {
-        snd_pcm_readi(input_handle, input_buffer, FFT_SIZE);
-        
-        for (int i = 0; i < FFT_SIZE; i++) {
-            fft_input[i] = (float)input_buffer[i];
-        }
 
-        kiss_fftr(fft_cfg, fft_input, fft_output);
-        
-        bool received_bit = detect_tone_optimized(fft_output);
-
-        if(!recodring_byte && received_bit){
-            recodring_byte = true;
-            current_bit = 0;
-        }else if(recodring_byte){
-            received_byte = (received_byte>>1)|(received_bit<<7);
-            current_bit++;
-            if(current_bit >= 8){
-                recodring_byte = false;
-                pthread_mutex_lock(&serial_send_queue_mutex);
-                arrpush(serial_send_queue, received_byte);
-                pthread_mutex_unlock(&serial_send_queue_mutex);
+        //waiting for preamble
+        short *sliding_buffer = NULL;
+        arrsetlen(sliding_buffer, FFT_SIZE*2);
+        snd_pcm_readi(input_handle, sliding_buffer, FFT_SIZE*2);
+        while(true){
+            arrdel(sliding_buffer, 0);
+            arraddn(sliding_buffer, 1);
+            snd_pcm_readi(input_handle, &sliding_buffer[FFT_SIZE*2-1], 1);
+            float max_c = correlation(sliding_buffer, sliding_buffer+FFT_SIZE, FFT_SIZE);
+            if(max_c > CORRELATION_THRESHOLD){
+                while(true){
+                    arrdel(sliding_buffer, 0);
+                    arraddn(sliding_buffer, 1);
+                    snd_pcm_readi(input_handle, &sliding_buffer[FFT_SIZE*2-1], 1);
+                    float c = correlation(sliding_buffer, sliding_buffer+FFT_SIZE, FFT_SIZE);
+                    if(c > max_c){
+                        max_c = c;
+                    }else if (c <= max_c-CORRELATION_FALLOFF_THRESHOLD){
+                        // printf("correlation: %f\n", c);
+                        goto peak_found;
+                    }
+                }
             }
+        }
+        peak_found:
+        // printf("found preamble\n");
+        for (int i = 0; i < FFT_SIZE; i++) {
+                fft_input[i] = (float)sliding_buffer[i];
+            }
+        kiss_fftr(fft_cfg, fft_input, fft_output);
+        float received_volume = sqrt(fft_output[FIRST_SUBCARRIER].r*fft_output[FIRST_SUBCARRIER].r+fft_output[FIRST_SUBCARRIER].i*fft_output[FIRST_SUBCARRIER].i);
+        // printf("received_volume: %f\n",received_volume);
+        
+        //receive data
+
+        int received_symbols = 0;
+        int message_length = 5;
+        int received_bits = 0;
+        bool message_length_set = false;
+        uint8_t message[65536] = {0};
+        while(true){
+            snd_pcm_readi(input_handle, garbage, CYCLIC_PREFIX/2);
+            snd_pcm_readi(input_handle, input_buffer, FFT_SIZE);
+            snd_pcm_readi(input_handle, garbage, CYCLIC_PREFIX/2);
+            for (int i = 0; i < FFT_SIZE; i++) {
+                fft_input[i] = (float)input_buffer[i];
+            }
+            kiss_fftr(fft_cfg, fft_input, fft_output);
+
+            kiss_fft_cpx ofdm_symbol[SUBCARRIER_COUNT];
+            for(int i = 0;i<SUBCARRIER_COUNT;i++){
+                ofdm_symbol[i] = fft_output[FIRST_SUBCARRIER + i*SUBCARRIER_SPACING];
+                float value = sqrt(ofdm_symbol[i].r*ofdm_symbol[i].r+ofdm_symbol[i].i*ofdm_symbol[i].i)/received_volume;
+                float min_diff = 10;
+                int best_symbol = 0;
+                // printf("value: %f\n", value);
+                for(int j = 0;j<SUBCARRIER_SYMBOLS_COUNT;j++){
+                    float diff = fabsf(value-subcarrier_symbols[j].r);
+                    if(diff<min_diff){
+                        min_diff = diff;
+                        best_symbol = j;
+                    }
+                }
+                message[received_bits/8] |= best_symbol<<(received_bits%8);
+                // printf("best symbol: ");
+                // for(int j = 0;j<(int)log2(SUBCARRIER_SYMBOLS_COUNT);j++){
+                //     printf("%i",(best_symbol>>j)%2);
+                // }
+                // printf("\n");
+                received_bits+=(int)log2(SUBCARRIER_SYMBOLS_COUNT);
+                if(received_bits>=32 && !message_length_set){
+                    message_length_set = true;
+                    int length1 = ((uint16_t*)message)[0];
+                    int length2 = ((uint16_t*)message)[1];
+                    if(length1!=length2 || length1>1600){
+                        message_length = 4;
+                        // printf("wrong length!\n");
+                    }else{
+                        message_length = *((uint16_t*)message);
+                        // printf("message length: %i\n", message[0]);
+                    }
+                }
+            }
+
+            received_symbols++;
+
+            if(received_symbols > message_length*8/BITS_PER_SYMBOL)break;
+        }
+        // printf("message finished\n");
+
+        if(message_length > 4){
+            pthread_mutex_lock(&serial_send_queue_mutex);
+            uint8_t *ptr = arraddnptr(serial_send_queue,message_length-4);
+            memcpy(ptr, message+4, message_length-4);
+            pthread_mutex_unlock(&serial_send_queue_mutex);
         }
     }
 
     return NULL;
+}
+
+void play_audio_samples_float(snd_pcm_t *handle, float *ifft_samples, int len){
+    short output_buffer[len];
+
+    for (int i = 0; i < len; i++) {
+        output_buffer[i] = (short)(ifft_samples[i]/2/SUBCARRIER_COUNT*AMPLITUDE);
+    }
+
+    int err = snd_pcm_writei(handle, output_buffer, len);
+
+    if (err == -EPIPE) {
+        fprintf(stderr, "Underrun! Preparing device again.\n");
+        snd_pcm_prepare(handle);
+    } else if (err < 0) {
+        fprintf(stderr, "Error from writei: %s\n", snd_strerror(err));
+    } else if (err != len) {
+        fprintf(stderr, "Short write, wrote %d frames\n", err);
+    }
 }
 
 void* audio_output_loop(void* args){
@@ -164,9 +222,6 @@ void* audio_output_loop(void* args){
     snd_pcm_t *handle;
     snd_pcm_hw_params_t *params;
     int err;
-    short *buffer;
-    int buffer_frames = 64;
-    int buffer_size;
 
     err = snd_pcm_open(&handle, OUTPUT_DEVICE, SND_PCM_STREAM_PLAYBACK, 0);
     if (err < 0) {
@@ -184,7 +239,7 @@ void* audio_output_loop(void* args){
     unsigned int actual_rate = SAMPLE_RATE;
     snd_pcm_hw_params_set_rate_near(handle, params, &actual_rate, 0);
 
-    snd_pcm_uframes_t hw_buffer_size = 64;
+    snd_pcm_uframes_t hw_buffer_size = 1024;
     snd_pcm_hw_params_set_buffer_size_near(handle, params, &hw_buffer_size);
 
     err = snd_pcm_hw_params(handle, params);
@@ -195,70 +250,73 @@ void* audio_output_loop(void* args){
 
     snd_pcm_prepare(handle);
 
-    buffer_size = buffer_frames * 2; // 2 bytes per sample
-    buffer = (short *)malloc(buffer_size);
-
-    float phase = 0;
-    float phase_increment_0 = 2 * PI * ZERO_FREQ / SAMPLE_RATE;
-    float phase_increment_1 = 2 * PI * ONE_FREQ / SAMPLE_RATE;
-
-    uint64_t current_sample = 0;
-    bool sending = false;
-    int data_length = 0;
+    kiss_fft_cpx ifft_input[FFT_SIZE];
+    float ifft_output[FFT_SIZE];
+    kiss_fftr_cfg ifft_cfg = kiss_fftr_alloc(FFT_SIZE, true, NULL, NULL);
 
     while (1) {
-        for (int i = 0; i < buffer_frames; i++) {
-            short sample = (short)(APLITUDE * sin(phase));
-            buffer[i] = sample;
-            if(!sending){
-                pthread_mutex_lock(&audio_send_queue_mutex);
-                data_length = arrlen(audio_send_queue);
-                if(data_length == 0){
-                    pthread_mutex_unlock(&audio_send_queue_mutex);
-                }else{
-                    current_sample = 0;
-                    sending = true;
-                }
+
+        pthread_mutex_lock(&audio_send_queue_mutex);
+        if(arrlen(audio_send_queue) > 0){
+            //make frame
+            int frame_length = arrlen(audio_send_queue)+4;
+            uint8_t frame[frame_length];
+            ((uint16_t*)frame)[0] = frame_length;
+            ((uint16_t*)frame)[1] = frame_length;
+            memcpy(frame+4,audio_send_queue,arrlen(audio_send_queue));
+            arrsetlen(audio_send_queue, 0);
+            pthread_mutex_unlock(&audio_send_queue_mutex);
+
+            //send preamble 
+            memset(ifft_input, 0, sizeof(ifft_input));
+            for(int i = 0;i<SUBCARRIER_COUNT;i++){
+                ifft_input[FIRST_SUBCARRIER + i*SUBCARRIER_SPACING] = preamble_symbol;
             }
-            if(sending){
-                int bit = current_sample/SAMPLES_PER_TONE;
-                if(bit >= 10*data_length){
-                    sending = false;
-                    phase += phase_increment_0;
-                    arrsetlen(audio_send_queue, 0);
-                    pthread_mutex_unlock(&audio_send_queue_mutex);
-                }else{
-                    if(bit%10 == 0){
-                        phase += phase_increment_1;
-                    }else if (bit%10 == 9){
-                        phase += phase_increment_0;
-                    }else if((audio_send_queue[bit/10]>>((bit%10)-1)&0x01)){
-                        phase += phase_increment_1;
+            kiss_fftri(ifft_cfg, ifft_input, ifft_output);
+            play_audio_samples_float(handle, ifft_output, FFT_SIZE);
+            play_audio_samples_float(handle, ifft_output, FFT_SIZE);
+
+            //send frame
+            for(int current_symbol = 0; current_symbol <= frame_length*8/BITS_PER_SYMBOL; current_symbol++){
+                memset(ifft_input, 0, sizeof(ifft_input));
+                kiss_fft_cpx ofdm_symbol[SUBCARRIER_COUNT];
+                int first_bit = current_symbol*BITS_PER_SYMBOL;
+                for(int subcarrier = 0;subcarrier<SUBCARRIER_COUNT;subcarrier++){
+                    int bit = first_bit+subcarrier*log2(SUBCARRIER_SYMBOLS_COUNT);
+                    if(bit/8<frame_length){
+                        int bits = (frame[bit/8]>>(bit%8))%SUBCARRIER_SYMBOLS_COUNT;
+                        ofdm_symbol[subcarrier] = subcarrier_symbols[bits];
                     }else{
-                        phase += phase_increment_0;
+                        ofdm_symbol[subcarrier] = default_symbol;
                     }
                 }
-                current_sample++;
-            }else{
-                current_sample = 0;
-                phase += phase_increment_0;
+
+                for(int i = 0;i<SUBCARRIER_COUNT;i++){
+                    ifft_input[FIRST_SUBCARRIER + i*SUBCARRIER_SPACING] = ofdm_symbol[i];
+                }
+
+                kiss_fftri(ifft_cfg, ifft_input, ifft_output);
+                play_audio_samples_float(handle, ifft_output+FFT_SIZE-CYCLIC_PREFIX, CYCLIC_PREFIX);
+                play_audio_samples_float(handle, ifft_output, FFT_SIZE);
             }
-            
-            if (phase >= 2 * PI) phase -= 2 * PI;
-        }
-        // ----------------------------------------------------------
 
-        err = snd_pcm_writei(handle, buffer, buffer_frames);
-
-        if (err == -EPIPE) {
-            fprintf(stderr, "Underrun! Preparing device again.\n");
-            snd_pcm_prepare(handle);
-        } else if (err < 0) {
-            fprintf(stderr, "Error from writei: %s\n", snd_strerror(err));
-            break;
-        } else if (err != buffer_frames) {
-            fprintf(stderr, "Short write, wrote %d frames\n", err);
+            for(int a = 0;a<FRAME_SPACING;a++){
+                memset(ifft_input, 0, sizeof(ifft_input));
+                pthread_mutex_unlock(&audio_send_queue_mutex);
+                for(int i = 0;i<SUBCARRIER_COUNT;i++){
+                    ifft_input[FIRST_SUBCARRIER + i*SUBCARRIER_SPACING] = default_symbol;
+                }
+                kiss_fftri(ifft_cfg, ifft_input, ifft_output);
+                play_audio_samples_float(handle, ifft_output, FFT_SIZE);
+            }
         }
+        memset(ifft_input, 0, sizeof(ifft_input));
+        pthread_mutex_unlock(&audio_send_queue_mutex);
+        for(int i = 0;i<SUBCARRIER_COUNT;i++){
+            ifft_input[FIRST_SUBCARRIER + i*SUBCARRIER_SPACING] = default_symbol;
+        }
+        kiss_fftri(ifft_cfg, ifft_input, ifft_output);
+        play_audio_samples_float(handle, ifft_output, FFT_SIZE);
     }
 
     return NULL;
@@ -269,7 +327,7 @@ void* serial_input_loop(void* args){
 
     char recive_buffer[1024];
     while(true){
-        int n = read(serial_fd, recive_buffer, sizeof(recive_buffer) - 1);
+        int n = read(serial_fd, recive_buffer, sizeof(recive_buffer));
         if (n > 0) {
             pthread_mutex_lock(&audio_send_queue_mutex);
             uint8_t* ptr = arraddnptr(audio_send_queue, n);
@@ -301,8 +359,16 @@ void* serial_output_loop(void* args){
 }
 
 int main() {
+    //generate symbols
+    for(int i = 0;i<SUBCARRIER_SYMBOLS_COUNT;i++){
+        kiss_fft_cpx symbol = {(1.0/SUBCARRIER_SYMBOLS_COUNT)*i,0};
+        subcarrier_symbols[i] = symbol;
+    }
+
     pthread_mutex_init(&serial_send_queue_mutex, NULL);
     pthread_mutex_init(&audio_send_queue_mutex, NULL);
+
+    printf("configured physical layer speed: %i bps\n", SAMPLE_RATE/FFT_SIZE*SUBCARRIER_COUNT*(int)log2(SUBCARRIER_SYMBOLS_COUNT));
 
     int serial_slave_fd;
     char serial_name[256];

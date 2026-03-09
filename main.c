@@ -15,15 +15,17 @@
 
 #define AMPLITUDE 20000
 #define SAMPLE_RATE 48000
-#define FFT_SIZE 24
+#define FFT_SIZE 256
 #define FIRST_SUBCARRIER 1
-#define SUBCARRIER_COUNT 8
+#define SUBCARRIER_COUNT 126
 #define SUBCARRIER_SPACING 1
-#define SUBCARRIER_SYMBOLS_COUNT 256
-#define CYCLIC_PREFIX 2
+#define SUBCARRIER_SYMBOLS_COUNT 2
+#define CYCLIC_PREFIX 10
 #define FRAME_SPACING 2
-#define CORRELATION_THRESHOLD 0.01
-#define CORRELATION_FALLOFF_THRESHOLD 0.00001
+#define CORRELATION_THRESHOLD 0.05
+#define CORRELATION_FALLOFF_THRESHOLD 0.0001
+#define CORRELATION_OFFSET (FFT_SIZE-1)
+
 
 #define BITS_PER_SYMBOL (SUBCARRIER_COUNT*(int)log2(SUBCARRIER_SYMBOLS_COUNT))
 #define PI 3.14159265359
@@ -32,6 +34,7 @@ kiss_fft_cpx subcarrier_symbols[SUBCARRIER_SYMBOLS_COUNT];
 
 kiss_fft_cpx default_symbol = {0.5,0};
 kiss_fft_cpx preamble_symbol = {1,0};
+kiss_fft_cpx after_preamble_symbol = {0,0};
 
 
 pthread_mutex_t serial_send_queue_mutex;
@@ -54,13 +57,13 @@ float correlation(int16_t *a, int16_t *b, int len){
     for(int i = 0;i<len;i++){
         sum += a[i]*b[i]*0.00003*0.00003;
     }
-    return sum/FFT_SIZE;
+    return sum/FFT_SIZE*SUBCARRIER_COUNT;
 }
 
 void* audio_input_loop(void* args){
     snd_pcm_t *input_handle;
     snd_pcm_hw_params_t *input_params;
-    short garbage[CYCLIC_PREFIX/2];
+    short garbage[65535];
     short input_buffer[FFT_SIZE];
     float fft_input[FFT_SIZE];
     kiss_fft_cpx fft_output[FFT_SIZE];
@@ -111,10 +114,15 @@ void* audio_input_loop(void* args){
                     arraddn(sliding_buffer, 1);
                     snd_pcm_readi(input_handle, &sliding_buffer[FFT_SIZE*2-1], 1);
                     float c = correlation(sliding_buffer, sliding_buffer+FFT_SIZE, FFT_SIZE);
+                    // printf("buffer: \n");
+                    // for(int j = 0;j<arrlen(sliding_buffer);j++){
+                    //     printf("%i ",sliding_buffer[j]);
+                    // }
+                    // printf("\n");
+                    // printf("correlation: %f\n", c);
                     if(c > max_c){
                         max_c = c;
                     }else if (c <= max_c-CORRELATION_FALLOFF_THRESHOLD){
-                        // printf("correlation: %f\n", c);
                         goto peak_found;
                     }
                 }
@@ -138,11 +146,23 @@ void* audio_input_loop(void* args){
         uint8_t message[65536] = {0};
         while(true){
             snd_pcm_readi(input_handle, garbage, CYCLIC_PREFIX/2);
-            snd_pcm_readi(input_handle, input_buffer, FFT_SIZE);
+            if(received_symbols==0 && CORRELATION_OFFSET>0){
+                snd_pcm_readi(input_handle, garbage, CORRELATION_OFFSET);
+                snd_pcm_readi(input_handle, input_buffer, FFT_SIZE);
+            }else{
+                snd_pcm_readi(input_handle, input_buffer, FFT_SIZE);
+            }
             snd_pcm_readi(input_handle, garbage, CYCLIC_PREFIX/2);
             for (int i = 0; i < FFT_SIZE; i++) {
                 fft_input[i] = (float)input_buffer[i];
             }
+
+            // printf("buffer: \n");
+            // for(int j = 0;j<FFT_SIZE;j++){
+            //     printf("%i ",input_buffer[j]);
+            // }
+            // printf("\n");
+
             kiss_fftr(fft_cfg, fft_input, fft_output);
 
             kiss_fft_cpx ofdm_symbol[SUBCARRIER_COUNT];
@@ -275,6 +295,12 @@ void* audio_output_loop(void* args){
             kiss_fftri(ifft_cfg, ifft_input, ifft_output);
             play_audio_samples_float(handle, ifft_output, FFT_SIZE);
             play_audio_samples_float(handle, ifft_output, FFT_SIZE);
+            memset(ifft_input, 0, sizeof(ifft_input));
+            for(int i = 0;i<SUBCARRIER_COUNT;i++){
+                ifft_input[FIRST_SUBCARRIER + i*SUBCARRIER_SPACING] = after_preamble_symbol;
+            }
+            kiss_fftri(ifft_cfg, ifft_input, ifft_output);
+            play_audio_samples_float(handle, ifft_output, FFT_SIZE);
 
             //send frame
             for(int current_symbol = 0; current_symbol <= frame_length*8/BITS_PER_SYMBOL; current_symbol++){
@@ -361,14 +387,14 @@ void* serial_output_loop(void* args){
 int main() {
     //generate symbols
     for(int i = 0;i<SUBCARRIER_SYMBOLS_COUNT;i++){
-        kiss_fft_cpx symbol = {(1.0/SUBCARRIER_SYMBOLS_COUNT)*i,0};
+        kiss_fft_cpx symbol = {(1.0/(SUBCARRIER_SYMBOLS_COUNT-1))*i,0};
         subcarrier_symbols[i] = symbol;
     }
 
     pthread_mutex_init(&serial_send_queue_mutex, NULL);
     pthread_mutex_init(&audio_send_queue_mutex, NULL);
 
-    printf("configured physical layer speed: %i bps\n", SAMPLE_RATE/FFT_SIZE*SUBCARRIER_COUNT*(int)log2(SUBCARRIER_SYMBOLS_COUNT));
+    printf("configured physical layer speed: %f bps\n", SAMPLE_RATE/FFT_SIZE*SUBCARRIER_COUNT*log2(SUBCARRIER_SYMBOLS_COUNT)/(FFT_SIZE+CYCLIC_PREFIX)*FFT_SIZE);
 
     int serial_slave_fd;
     char serial_name[256];

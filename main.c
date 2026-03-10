@@ -13,14 +13,14 @@
 #include "stb_ds.h"
 #include <pthread.h>
 
-#define AMPLITUDE 20000
+#define AMPLITUDE 32767
 #define SAMPLE_RATE 48000
 #define FFT_SIZE 256
-#define FIRST_SUBCARRIER 1
-#define SUBCARRIER_COUNT 126
+#define FIRST_SUBCARRIER 15
+#define SUBCARRIER_COUNT 100
 #define SUBCARRIER_SPACING 1
 #define SUBCARRIER_SYMBOLS_COUNT 2
-#define CYCLIC_PREFIX 10
+#define CYCLIC_PREFIX 0
 #define FRAME_SPACING 2
 #define CORRELATION_THRESHOLD 0.05
 #define CORRELATION_FALLOFF_THRESHOLD 0.0001
@@ -32,7 +32,7 @@
 
 kiss_fft_cpx subcarrier_symbols[SUBCARRIER_SYMBOLS_COUNT];
 
-kiss_fft_cpx default_symbol = {0.5,0};
+kiss_fft_cpx default_symbol = {0,0};
 kiss_fft_cpx preamble_symbol = {1,0};
 kiss_fft_cpx after_preamble_symbol = {0,0};
 

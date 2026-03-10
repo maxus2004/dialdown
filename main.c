@@ -1,6 +1,7 @@
-#define INPUT_DEVICE "pulse:alsa_output.usb-Apple__Inc._EarPods_GXLR4166L1-00.analog-stereo.monitor"
-#define OUTPUT_DEVICE "pulse"
+#define INPUT_DEVICE "pulse:ReceiverMicrophone"
+#define OUTPUT_DEVICE "pulse:TransmitterSpeaker"
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,7 @@
 #define SAMPLE_RATE 48000
 #define FFT_SIZE 256
 #define FIRST_SUBCARRIER 15
-#define SUBCARRIER_COUNT 100
+#define SUBCARRIER_COUNT 1
 #define SUBCARRIER_SPACING 1
 #define SUBCARRIER_SYMBOLS_COUNT 2
 #define CYCLIC_PREFIX 0
@@ -32,7 +33,7 @@
 
 kiss_fft_cpx subcarrier_symbols[SUBCARRIER_SYMBOLS_COUNT];
 
-kiss_fft_cpx default_symbol = {0,0};
+kiss_fft_cpx default_symbol = {0.5,0};
 kiss_fft_cpx preamble_symbol = {1,0};
 kiss_fft_cpx after_preamble_symbol = {0,0};
 
@@ -42,6 +43,8 @@ pthread_mutex_t audio_send_queue_mutex;
 
 uint8_t *serial_send_queue = NULL;
 uint8_t *audio_send_queue = NULL;
+
+uint32_t audio_devs[4];
 
 int serial_fd;
 
@@ -384,7 +387,36 @@ void* serial_output_loop(void* args){
     return NULL;
 }
 
+void cleanup(int sig){
+    for(int i = 0;i<4;i++){
+        char cmd[128];
+        sprintf(cmd,"pactl unload-module %i", audio_devs[i]);
+        system(cmd);
+    }
+    printf("deleted audio devices\n");
+    exit(0);
+}
+
+int run_command_with_int_output(char* cmd){
+    char buffer[128];
+    FILE *fp;
+
+    fp = popen(cmd, "r");
+    if (fp == NULL) {
+        perror("popen failed");
+        return 1;
+    }
+
+    fgets(buffer, sizeof(buffer), fp);
+
+    pclose(fp);
+
+    return atoi(buffer);
+}
+
 int main() {
+    printf("configured physical layer speed: %f bps\n", SAMPLE_RATE/FFT_SIZE*SUBCARRIER_COUNT*log2(SUBCARRIER_SYMBOLS_COUNT)/(FFT_SIZE+CYCLIC_PREFIX)*FFT_SIZE);
+
     //generate symbols
     for(int i = 0;i<SUBCARRIER_SYMBOLS_COUNT;i++){
         kiss_fft_cpx symbol = {(1.0/(SUBCARRIER_SYMBOLS_COUNT-1))*i,0};
@@ -394,8 +426,7 @@ int main() {
     pthread_mutex_init(&serial_send_queue_mutex, NULL);
     pthread_mutex_init(&audio_send_queue_mutex, NULL);
 
-    printf("configured physical layer speed: %f bps\n", SAMPLE_RATE/FFT_SIZE*SUBCARRIER_COUNT*log2(SUBCARRIER_SYMBOLS_COUNT)/(FFT_SIZE+CYCLIC_PREFIX)*FFT_SIZE);
-
+    //create serial port
     int serial_slave_fd;
     char serial_name[256];
     if (openpty(&serial_fd, &serial_slave_fd, serial_name, NULL, NULL) == -1) {
@@ -403,6 +434,14 @@ int main() {
         exit(1);
     }
     printf("created serial port: %s\n", serial_name);
+
+    //create audio devices
+    signal(SIGINT, cleanup);
+    audio_devs[0] = run_command_with_int_output("pactl load-module module-null-sink sink_name=ReceiverSpeaker sink_properties=device.description=ReceiverSpeaker");
+    audio_devs[1] = run_command_with_int_output("pactl load-module module-null-sink sink_name=TransmitterSpeaker sink_properties=device.description=TransmitterSpeaker");
+    audio_devs[2] = run_command_with_int_output("pactl load-module module-remap-source source_name=ReceiverMicrophone master=ReceiverSpeaker.monitor source_properties=device.description=ReceiverMicrophone");
+    audio_devs[3] = run_command_with_int_output("pactl load-module module-remap-source source_name=TransmitterMicrophone master=TransmitterSpeaker.monitor source_properties=device.description=TransmitterMicrophone");
+    printf("created audio devices\n");
 
     pthread_t audio_input_thread;
     if (pthread_create(&audio_input_thread, NULL, audio_input_loop, NULL) != 0) {
@@ -421,7 +460,7 @@ int main() {
         fprintf(stderr, "Error creating serial_input_thread\n");
     }
 
-    sleep_ms(50);
+    sleep_ms(100);
 
     printf("commands:\n");
     printf(" - exit\n");
@@ -439,6 +478,8 @@ int main() {
             perror("Error reading console input");
         }
     }
+
+    cleanup(0);
 
     return 0;
 }

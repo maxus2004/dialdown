@@ -292,7 +292,7 @@ void* audio_output_loop(void* args){
 
             //send preamble 
             memset(ifft_input, 0, sizeof(ifft_input));
-            for(int i = 0;i<1;i++){
+            for(int i = 0;i<SUBCARRIER_COUNT;i++){
                 ifft_input[FIRST_SUBCARRIER + i*SUBCARRIER_SPACING] = preamble_symbol;
             }
             kiss_fftri(ifft_cfg, ifft_input, ifft_output);

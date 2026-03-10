@@ -14,17 +14,17 @@
 #include "stb_ds.h"
 #include <pthread.h>
 
-#define AMPLITUDE 32767
+#define AMPLITUDE 15000
 #define SAMPLE_RATE 48000
-#define FFT_SIZE 256
-#define FIRST_SUBCARRIER 15
-#define SUBCARRIER_COUNT 1
+#define FFT_SIZE 64
+#define FIRST_SUBCARRIER 4
+#define SUBCARRIER_COUNT 16
 #define SUBCARRIER_SPACING 1
-#define SUBCARRIER_SYMBOLS_COUNT 2
-#define CYCLIC_PREFIX 0
+#define SUBCARRIER_SYMBOLS_COUNT 4
+#define CYCLIC_PREFIX 16
 #define FRAME_SPACING 2
 #define CORRELATION_THRESHOLD 0.05
-#define CORRELATION_FALLOFF_THRESHOLD 0.0001
+#define CORRELATION_FALLOFF_THRESHOLD 0.01
 #define CORRELATION_OFFSET (FFT_SIZE-1)
 
 
@@ -117,12 +117,12 @@ void* audio_input_loop(void* args){
                     arraddn(sliding_buffer, 1);
                     snd_pcm_readi(input_handle, &sliding_buffer[FFT_SIZE*2-1], 1);
                     float c = correlation(sliding_buffer, sliding_buffer+FFT_SIZE, FFT_SIZE);
-                    // printf("buffer: \n");
-                    // for(int j = 0;j<arrlen(sliding_buffer);j++){
-                    //     printf("%i ",sliding_buffer[j]);
-                    // }
-                    // printf("\n");
-                    // printf("correlation: %f\n", c);
+                    printf("buffer: \n");
+                    for(int j = 0;j<arrlen(sliding_buffer);j++){
+                        printf("%i ",sliding_buffer[j]);
+                    }
+                    printf("\n");
+                    printf("correlation: %f\n", c);
                     if(c > max_c){
                         max_c = c;
                     }else if (c <= max_c-CORRELATION_FALLOFF_THRESHOLD){
@@ -132,13 +132,13 @@ void* audio_input_loop(void* args){
             }
         }
         peak_found:
-        // printf("found preamble\n");
+        printf("found preamble\n");
         for (int i = 0; i < FFT_SIZE; i++) {
                 fft_input[i] = (float)sliding_buffer[i];
             }
         kiss_fftr(fft_cfg, fft_input, fft_output);
         float received_volume = sqrt(fft_output[FIRST_SUBCARRIER].r*fft_output[FIRST_SUBCARRIER].r+fft_output[FIRST_SUBCARRIER].i*fft_output[FIRST_SUBCARRIER].i);
-        // printf("received_volume: %f\n",received_volume);
+        printf("received_volume: %f\n",received_volume);
         
         //receive data
 
@@ -160,11 +160,11 @@ void* audio_input_loop(void* args){
                 fft_input[i] = (float)input_buffer[i];
             }
 
-            // printf("buffer: \n");
-            // for(int j = 0;j<FFT_SIZE;j++){
-            //     printf("%i ",input_buffer[j]);
-            // }
-            // printf("\n");
+            printf("buffer: \n");
+            for(int j = 0;j<FFT_SIZE;j++){
+                printf("%i ",input_buffer[j]);
+            }
+            printf("\n");
 
             kiss_fftr(fft_cfg, fft_input, fft_output);
 
@@ -174,7 +174,7 @@ void* audio_input_loop(void* args){
                 float value = sqrt(ofdm_symbol[i].r*ofdm_symbol[i].r+ofdm_symbol[i].i*ofdm_symbol[i].i)/received_volume;
                 float min_diff = 10;
                 int best_symbol = 0;
-                // printf("value: %f\n", value);
+                printf("value: %f\n", value);
                 for(int j = 0;j<SUBCARRIER_SYMBOLS_COUNT;j++){
                     float diff = fabsf(value-subcarrier_symbols[j].r);
                     if(diff<min_diff){
@@ -183,11 +183,11 @@ void* audio_input_loop(void* args){
                     }
                 }
                 message[received_bits/8] |= best_symbol<<(received_bits%8);
-                // printf("best symbol: ");
-                // for(int j = 0;j<(int)log2(SUBCARRIER_SYMBOLS_COUNT);j++){
-                //     printf("%i",(best_symbol>>j)%2);
-                // }
-                // printf("\n");
+                printf("best symbol: ");
+                for(int j = 0;j<(int)log2(SUBCARRIER_SYMBOLS_COUNT);j++){
+                    printf("%i",(best_symbol>>j)%2);
+                }
+                printf("\n");
                 received_bits+=(int)log2(SUBCARRIER_SYMBOLS_COUNT);
                 if(received_bits>=32 && !message_length_set){
                     message_length_set = true;
@@ -195,10 +195,10 @@ void* audio_input_loop(void* args){
                     int length2 = ((uint16_t*)message)[1];
                     if(length1!=length2 || length1>1600){
                         message_length = 4;
-                        // printf("wrong length!\n");
+                        printf("wrong length!\n");
                     }else{
                         message_length = *((uint16_t*)message);
-                        // printf("message length: %i\n", message[0]);
+                        printf("message length: %i\n", message[0]);
                     }
                 }
             }
@@ -207,7 +207,7 @@ void* audio_input_loop(void* args){
 
             if(received_symbols > message_length*8/BITS_PER_SYMBOL)break;
         }
-        // printf("message finished\n");
+        printf("message finished\n");
 
         if(message_length > 4){
             pthread_mutex_lock(&serial_send_queue_mutex);
@@ -292,7 +292,7 @@ void* audio_output_loop(void* args){
 
             //send preamble 
             memset(ifft_input, 0, sizeof(ifft_input));
-            for(int i = 0;i<SUBCARRIER_COUNT;i++){
+            for(int i = 0;i<1;i++){
                 ifft_input[FIRST_SUBCARRIER + i*SUBCARRIER_SPACING] = preamble_symbol;
             }
             kiss_fftri(ifft_cfg, ifft_input, ifft_output);

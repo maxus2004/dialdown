@@ -14,17 +14,17 @@
 #include "stb_ds.h"
 #include <pthread.h>
 
-#define AMPLITUDE 15000
+#define AMPLITUDE 10000
 #define SAMPLE_RATE 48000
-#define FFT_SIZE 64
-#define FIRST_SUBCARRIER 4
-#define SUBCARRIER_COUNT 16
+#define FFT_SIZE 24
+#define FIRST_SUBCARRIER 1
+#define SUBCARRIER_COUNT 4
 #define SUBCARRIER_SPACING 1
-#define SUBCARRIER_SYMBOLS_COUNT 4
-#define CYCLIC_PREFIX 16
-#define FRAME_SPACING 2
-#define CORRELATION_THRESHOLD 0.05
-#define CORRELATION_FALLOFF_THRESHOLD 0.01
+#define SUBCARRIER_SYMBOLS_COUNT 2
+#define CYCLIC_PREFIX 0
+#define FRAME_SPACING 10
+#define CORRELATION_THRESHOLD 0.02
+#define CORRELATION_FALLOFF_THRESHOLD 0.001
 #define CORRELATION_OFFSET (FFT_SIZE-1)
 
 
@@ -117,11 +117,11 @@ void* audio_input_loop(void* args){
                     arraddn(sliding_buffer, 1);
                     snd_pcm_readi(input_handle, &sliding_buffer[FFT_SIZE*2-1], 1);
                     float c = correlation(sliding_buffer, sliding_buffer+FFT_SIZE, FFT_SIZE);
-                    printf("buffer: \n");
-                    for(int j = 0;j<arrlen(sliding_buffer);j++){
-                        printf("%i ",sliding_buffer[j]);
-                    }
-                    printf("\n");
+                    // printf("buffer: \n");
+                    // for(int j = 0;j<arrlen(sliding_buffer);j++){
+                    //     printf("%i ",sliding_buffer[j]);
+                    // }
+                    // printf("\n");
                     printf("correlation: %f\n", c);
                     if(c > max_c){
                         max_c = c;
@@ -174,6 +174,8 @@ void* audio_input_loop(void* args){
                 float value = sqrt(ofdm_symbol[i].r*ofdm_symbol[i].r+ofdm_symbol[i].i*ofdm_symbol[i].i)/received_volume;
                 float min_diff = 10;
                 int best_symbol = 0;
+                printf("r: %f\n", ofdm_symbol[i].r);
+                printf("i: %f\n", ofdm_symbol[i].i);
                 printf("value: %f\n", value);
                 for(int j = 0;j<SUBCARRIER_SYMBOLS_COUNT;j++){
                     float diff = fabsf(value-subcarrier_symbols[j].r);
@@ -205,7 +207,7 @@ void* audio_input_loop(void* args){
 
             received_symbols++;
 
-            if(received_symbols > message_length*8/BITS_PER_SYMBOL)break;
+            if(received_symbols >= message_length*8/BITS_PER_SYMBOL)break;
         }
         printf("message finished\n");
 
